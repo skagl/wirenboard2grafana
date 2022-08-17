@@ -1,0 +1,58 @@
+version: '3.9'
+
+services:
+  mosquitto:
+    build:
+      context: ./mosquitto
+    image: wb_mosquitto
+    restart: always
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+      - mosquitto_data:/mosquitto/data"
+      - ./mosquitto/config:/mosquitto/config"
+      - ./mosquitto/config/passwd.conf:/mosquitto/config/passwd.conf
+    ports:
+      - "1883:1883"
+
+  influxdb:
+    build:
+      context: ./influxdb
+    image: wb_influxdb
+    restart: always
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+      - influxdb_data:/var/lib/influxdb
+      - ./influxdb/config/influxdb.conf:/etc/influxdb/influxdb.conf:ro
+    expose:
+      - 8086
+
+  grafana:
+    build:
+      context: ./grafana
+    image: wb_grafana
+    hostname: wb_grafana
+    restart: always
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+    environment:
+      GF_PATHS_PLUGINS: /var/lib/grafana_plugins
+    depends_on:
+      - influxdb
+
+  telegraf:
+    build:
+      context: ./telegraf
+    image: wb_telegraf
+    hostname: wb_telegraf
+    restart: always
+    volumes:
+      - ./telegraf/config/telegraf.conf:/etc/telegraf/telegraf.conf:ro
+
+volumes:
+  influxdb_data:
+  mosquitto_data:
+  grafana_data:
