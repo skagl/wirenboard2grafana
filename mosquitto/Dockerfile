@@ -1,4 +1,4 @@
-FROM eclipse-mosquitto:1.6
+FROM eclipse-mosquitto:2.0.15
 
 COPY config/mosquitto.conf /mosquitto/config/
 COPY config/acl.conf /mosquitto/config/
